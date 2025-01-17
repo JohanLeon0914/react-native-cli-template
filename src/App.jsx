@@ -4,9 +4,8 @@ import {StatusBar} from 'react-native';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Main from './components/Main';
-import Details from './components/Details';
 
-const Stack= createNativeStackNavigator()
+const Stack = createNativeStackNavigator();
 
 function App() {
   return (
@@ -14,7 +13,6 @@ function App() {
       <StatusBar />
      <Stack.Navigator initialRouteName="Main">
        <Stack.Screen name="Main" component={Main} />
-       <Stack.Screen name="Details" component={Details} />
      </Stack.Navigator>
     </NavigationContainer>
   );

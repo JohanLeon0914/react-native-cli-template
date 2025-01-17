@@ -1,76 +1,121 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
-import {
-  Button,
-    FlatList,
-  Image,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import React, { useState } from 'react';
+import { Image, StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native';
+import closeIcon from '../assets/cerrar.png';
 
-function Main({navigation}) {
-  const [games, setGames] = useState([]);
+function Main() {
+  const [onFocus, setOnFocus] = useState(false);
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchGames = async () => {
-      try {
-        const response = await fetch(
-          'https://api.rawg.io/api/games?key=8cce83bbf1c9472793ff7c8ffadf93ee',
-        );
-        const data = await response.json();
-        setGames(data.results);
-      } catch (error) {
-        console.error('Error fetching games:', error);
-      }
-    };
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-    fetchGames();
-  }, []);
+  const handleBlur = () => {
+    if (!validateEmail(email) && email !== '') {
+      setError('Correo electrónico no válido');
+    } else {
+      setError('');
+    }
+    setOnFocus(email !== '');
+  };
+
+  const handleClearEmail = () => {
+    setEmail('');
+    setError('');
+    setOnFocus(false);
+  };
 
   return (
-    <View style={styles.container}>
-      <StatusBar />
-      <Text style={{color: 'white'}}>Hola mundo</Text>
-        <FlatList
-            data={games}
-            keyExtractor={(game) => game.slug}
-            renderItem={({item}) => (
-                <View>
-                <Image
-                  source={{uri: item.background_image}}
-                  style={styles.image}
-                />
-                <Text style={styles.title}>{item.name}</Text>
-                <Text style={{color: 'white'}}>{item.metacritic}</Text>
-                <Button title="details" onPress={() => navigation.navigate('Details', {
-                  game: item,
-                })} />
-              </View>
-            )}
-        />
+    <View style={styles.containerPhather}>
+      <View style={[styles.container, onFocus && styles.containerFocused]}>
+        <View style={styles.inputContainer}>
+          {onFocus && (
+            <Text
+              style={[styles.label, (onFocus || email) ? styles.labelActive : styles.labelInactive, error && styles.labelError]}
+            >
+              {error ? error : 'Correo electrónico'}
+            </Text>
+          )}
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            onFocus={() => setOnFocus(true)}
+            onBlur={handleBlur}
+            placeholderTextColor="#7876b1"
+            style={styles.input}
+            placeholder={onFocus ? '' : 'Escribe tu correo electrónico'}
+          />
+        </View>
+        <TouchableOpacity onPress={handleClearEmail}>
+          <Image source={closeIcon} style={styles.image} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  containerPhather: {
+    margin: 50,
+  },
   container: {
-    flex: 1,
-    backgroundColor: '#000',
+    height: 60,
+    width: 300,
+    flexDirection: 'row',
+    borderRadius: 20,
+    backgroundColor: '#141534',
+    paddingHorizontal: 10,
     alignItems: 'center',
-    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 5,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  containerFocused: {
+    shadowColor: '#7D77FF',
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
+    borderColor: '#7D77FF',
+  },
+  inputContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  label: {
+    position: 'absolute',
+    left: 6,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  labelInactive: {
+    top: 15,
+    fontSize: 18,
+    color: '#7876b1',
+  },
+  labelActive: {
+    top: -10,
+    fontSize: 12,
+    color: '#7D77FF',
+  },
+  labelError: {
+    color: '#FF4D4D',
+  },
+  input: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    paddingVertical: 5,
   },
   image: {
-    width: 100,
-    height: 100,
-    resizeMode: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 10,
+    width: 25,
+    height: 25,
+    marginLeft: 10,
   },
 });
 
